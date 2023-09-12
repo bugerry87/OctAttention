@@ -68,12 +68,11 @@ if __name__=="__main__":
     ptNamePrefix = args.prefix
     qlevel = 2/(2**args.qlevel-1)
     printl = CPrintl(args.log)
-    fileList = sorted(glob.glob(args.output))
-    for n, file in enumerate(fileList):
+    for n, file in enumerate(glob.glob(args.input)):
         dataPrepare(
             file,
             saveMatDir=args.output,
-            ptNamePrefix=args.prefix,
+            ptNamePrefix=f'{args.prefix}{n:06d}_',
             offset=args.offset,
             qs=qlevel,
             normalize=True,
