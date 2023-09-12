@@ -15,7 +15,6 @@ All rights reserved.
 import glob
 from os import path
 from Preparedata.data import dataPrepare
-from networkTool import CPrintl
 from argparse import ArgumentParser
 
 
@@ -54,12 +53,6 @@ def init_main_args(parents=[]):
         default='min',
         help='Offset method'
     )
-    
-    main_args.add_argument(
-        '--log',
-        default='./Preparedata/dataPrepare.log',
-        help='Path for log file'
-    )
     return main_args
 
 if __name__=="__main__":
@@ -67,7 +60,6 @@ if __name__=="__main__":
 
     ptNamePrefix = args.prefix
     qlevel = 2/(2**args.qlevel-1)
-    printl = CPrintl(args.log)
     for n, file in enumerate(glob.glob(args.input)):
         result = dataPrepare(
             file,
@@ -78,4 +70,4 @@ if __name__=="__main__":
             normalize=True,
             rotation=False,
         )[0]
-        printl(result)
+        print(result)
