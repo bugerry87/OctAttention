@@ -69,7 +69,7 @@ if __name__=="__main__":
     qlevel = 2/(2**args.qlevel-1)
     printl = CPrintl(args.log)
     for n, file in enumerate(glob.glob(args.input)):
-        dataPrepare(
+        result = dataPrepare(
             file,
             saveMatDir=args.output,
             ptNamePrefix=f'{args.prefix}{n:06d}_',
@@ -77,5 +77,5 @@ if __name__=="__main__":
             qs=qlevel,
             normalize=True,
             rotation=False,
-        )
-        printl(file)
+        )[0]
+        printl(result)
