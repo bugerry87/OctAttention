@@ -1,6 +1,6 @@
-conda create -n py37 python=3.7
+conda create -n $1 python=3.7
+conda activate $1
 conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch
-conda activate py37
 pip install hdf5storage
 pip install Ninja
 pip install tensorboard

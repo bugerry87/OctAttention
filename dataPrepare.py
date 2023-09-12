@@ -13,6 +13,7 @@ Description: Prepare data for traning and testing.
 All rights reserved.
 '''
 import glob
+from os import path
 from Preparedata.data import dataPrepare
 from networkTool import CPrintl
 from argparse import ArgumentParser
@@ -40,40 +41,42 @@ def init_main_args(parents=[]):
         default='MPEG_',
         help='Prefix for filename'
     )
+
+    main_args.add_argument(
+        '--qlevel', '-q',
+        type=int,
+        default=12,
+        help='Quantization Level'
+    )
+
+    main_args.add_argument(
+        '--offset', '-O',
+        default='min',
+        help='Offset method'
+    )
     
     main_args.add_argument(
         '--log',
-        default='Preparedata/makedFileObj.log',
+        default='./Preparedata/dataPrepare.log',
         help='Path for log file'
     )
     return main_args
 
-def makedFile(dir):
-    fileList = sorted(glob.glob(dir))
-    return fileList
 if __name__=="__main__":
     args = init_main_args().parse_args()
 
-    oriDir = args.input
-    outDir = args.output
     ptNamePrefix = args.prefix
-
+    qlevel = 2/(2**args.qlevel-1)
     printl = CPrintl(args.log)
-    makeFileList = makedFile(f'{outDir}*.mat')
-    fileList = sorted(glob.glob(oriDir))
-    for n,file in enumerate(fileList):
-        fileName = file.split('/')[-1][:-4]
-        dataName = f'{outDir}{ptNamePrefix}{fileName}.mat'
-        if dataName in makeFileList:   
-            print(dataName, 'done!')
-            continue
+    fileList = sorted(glob.glob(args.output))
+    for n, file in enumerate(fileList):
         dataPrepare(
             file,
-            saveMatDir=outDir,
-            ptNamePrefix=ptNamePrefix,
-            offset=0,
-            rotation=False
+            saveMatDir=args.output,
+            ptNamePrefix=args.prefix,
+            offset=args.offset,
+            qs=qlevel,
+            normalize=True,
+            rotation=False,
         )
-        # please set `rotation=True` in the `dataPrepare` function when processing MVUB data
-        if n%10==0:
-            printl(dataName)
+        printl(file)

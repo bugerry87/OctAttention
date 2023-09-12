@@ -25,7 +25,7 @@ def dataPrepare(
 ):
     if not os.path.exists(saveMatDir):
         os.makedirs(saveMatDir)
-    ptName = ptNamePrefix+os.path.splitext(os.path.basename(fileName))[0] 
+    ptName = ptNamePrefix + os.path.splitext(os.path.basename(fileName))[0] 
     p = pointCloud.ptread(fileName)
     
     refPt = p
@@ -36,7 +36,7 @@ def dataPrepare(
 
     if rotation:
         refPt = refPt[:,[0,2,1]]
-        refPt[:,2] = - refPt[:,2]
+        refPt[:,2] = -refPt[:,2]
 
     if offset is 'min':
         offset = np.min(refPt, 0)
@@ -80,5 +80,5 @@ def dataPrepare(
         oned_as='row',
         store_python_metadata=True
     )
-    DQpt = (pt*qs+offset) 
+    DQpt = (pt*qs + offset) 
     return os.path.join(saveMatDir, name),DQpt,refPt
