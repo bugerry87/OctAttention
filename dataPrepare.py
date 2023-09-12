@@ -15,26 +15,65 @@ All rights reserved.
 import glob
 from Preparedata.data import dataPrepare
 from networkTool import CPrintl
+from argparse import ArgumentParser
+
+
+def init_main_args(parents=[]):
+    main_args = ArgumentParser(
+        description="Data Prepare",
+        conflict_handler='resolve',
+        parents=parents
+    )
+    
+    main_args.add_argument(
+        '--input', '-i',
+        help='Path to dataset directory'
+    )
+     
+    main_args.add_argument(
+        '--output', '-o',
+        help='Path for converted data'
+    )
+    
+    main_args.add_argument(
+        '--prefix', '-p',
+        default='MPEG_',
+        help='Prefix for filename'
+    )
+    
+    main_args.add_argument(
+        '--log',
+        default='Preparedata/makedFileObj.log',
+        help='Path for log file'
+    )
+    return main_args
+
 def makedFile(dir):
     fileList = sorted(glob.glob(dir))
     return fileList
 if __name__=="__main__":
+    args = init_main_args().parse_args()
 
-######For MPEG,MVUB######    
-    oriDir = '/8iVFBv2/longdress/Ply/*.ply'
-    outDir = 'Data/Obj/train/'
-    ptNamePrefix = 'MPEG_' # 'MVUB_'
+    oriDir = args.input
+    outDir = args.output
+    ptNamePrefix = args.prefix
 
-    printl = CPrintl('Preparedata/makedFileObj.log')
-    makeFileList = makedFile(outDir+'*.mat')
+    printl = CPrintl(args.log)
+    makeFileList = makedFile(f'{outDir}*.mat')
     fileList = sorted(glob.glob(oriDir))
     for n,file in enumerate(fileList):
         fileName = file.split('/')[-1][:-4]
-        dataName = outDir+ptNamePrefix+fileName+'.mat'
+        dataName = f'{outDir}{ptNamePrefix}{fileName}.mat'
         if dataName in makeFileList:   
-            print(dataName,'maked!')
+            print(dataName, 'done!')
             continue
-        dataPrepare(file,saveMatDir=outDir,ptNamePrefix=ptNamePrefix,offset=0,rotation=False)
+        dataPrepare(
+            file,
+            saveMatDir=outDir,
+            ptNamePrefix=ptNamePrefix,
+            offset=0,
+            rotation=False
+        )
         # please set `rotation=True` in the `dataPrepare` function when processing MVUB data
         if n%10==0:
             printl(dataName)
