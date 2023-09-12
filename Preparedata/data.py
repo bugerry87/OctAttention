@@ -73,12 +73,13 @@ def dataPrepare(
             Info,
         )
     }
+    target = os.path.join(saveMatDir, name)
     hdf5storage.savemat(
-        os.path.join(saveMatDir, name),
+        target,
         patchFile,
         format='7.3',
         oned_as='row',
         store_python_metadata=True
     )
     DQpt = (pt*qs + offset) 
-    return os.path.join(saveMatDir, name), DQpt, refPt
+    return target, DQpt, refPt
