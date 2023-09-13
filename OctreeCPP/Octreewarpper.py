@@ -71,7 +71,6 @@ class COctree(object):
         lib.vector_push_back(self.vector, c_int(i))
 
     def genOctree(self, p):  # foo in Python calls foo in C++
-        
         data = np.ascontiguousarray(p).astype(np.double)
         data_p = data.ctypes.data_as(c_double_p)
         self.code = OctCode(lib.genOctreeInterface(self.vector,data_p,data.shape[0]))
@@ -125,4 +124,4 @@ class Node():
 def GenOctree(points):
     Octree = COctree()
     Octree.genOctree(points)
-    return list(Octree.code),Octree,len(Octree)
+    return np.asarray(Octree.code, dtype=np.uint8), Octree, len(Octree)

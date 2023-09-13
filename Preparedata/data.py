@@ -82,5 +82,5 @@ def dataPrepare(
         store_python_metadata=True
     )
     DQpt = (pt*qs + offset)
-    print(code)
+    print(code.max(), len(code))
     return target, DQpt, refPt
