@@ -50,7 +50,7 @@ def dataPrepare(
     pt = np.unique(pt,axis=0, return_index=True)[0]
     pt = pt.astype(int)
     # pointCloud.write_ply_data('pori.ply',np.hstack((pt,c)),attributeName=['reflectance'],attriType=['uint16'])
-    Octree, QLevel = GenOctree(pt)[1:]
+    code, Octree, QLevel = GenOctree(pt)
     DataSturct = GenKparentSeq(Octree, 4)
     
     name = f'{ptName}.mat'
@@ -81,5 +81,6 @@ def dataPrepare(
         oned_as='row',
         store_python_metadata=True
     )
-    DQpt = (pt*qs + offset) 
+    DQpt = (pt*qs + offset)
+    print(code)
     return target, DQpt, refPt
