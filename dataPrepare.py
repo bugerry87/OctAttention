@@ -21,7 +21,7 @@ def makedFile(dir):
 if __name__=="__main__":
 
 #####For KITTI######
-    oriDir = '/semanticKITTI/dataset/sequences/'
+    oriDir = '../groups/kitti/dataset/sequences/train/'
     outDir = 'Data/Lidar/train/'
     ptNamePrefix = 'Kitti_'
 
