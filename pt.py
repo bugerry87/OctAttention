@@ -7,7 +7,7 @@ import os
 # import open3d as o3d
 from plyfile import PlyData
 import subprocess
-from scipy.spatial import KDTree
+from scipy.spatial import cKDTree
 
 ply2851Path = "file/2851.ply"
 PCERRORPATH = "./file/pc_error"
@@ -69,9 +69,9 @@ def pcerror(pcRefer,pc,pcReferNorm,pcerror_cfg_params, pcerror_result,pcerror_pa
 def distChamfer(f1, f2,scale=1.0):
     f1/=scale
     f2/=scale
-    tree = KDTree(f1,compact_nodes=False)
+    tree = cKDTree(f1,compact_nodes=False)
     d1,_ = tree.query(f2,k=1,workers=-1,eps=0)
-    tree = KDTree(f2,compact_nodes=False)
+    tree = cKDTree(f2,compact_nodes=False)
     d2,_ = tree.query(f1,k=1,workers=-1,eps=0)
     return max(d1.mean(),d2.mean()) 
   
