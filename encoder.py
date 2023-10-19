@@ -94,7 +94,6 @@ if __name__=="__main__":
         for qlevel in [12]:
             if oriFile.endswith('.mat'):
                 matFile = oriFile
-                DQpt = None
             else:
                 matFile, DQpt, normalizePt = dataPrepare(
                     oriFile,
@@ -122,12 +121,6 @@ if __name__=="__main__":
                 False
             )
 
-            if DQpt is None:
-                info = mat[cell[2,0]]
-                offset = info['offset']
-                qs = info['qs']
-                DQpt = p * qs + offset
-
             print("ptName: ", ptName)
             print("time(s):", elapsed)
             print("ori file", matFile)
@@ -139,13 +132,6 @@ if __name__=="__main__":
             print('octNum:', octNumList)
             print("bit per oct:", binsz/oct_len)
             print("oct len:", oct_len)
-
-            print('_'*50,'pc_error','_'*50)
-            pointCloud.pcerror(
-                normalizePt,
-                DQpt,
-                None,
-                '-r 1',
-                None
-            ).wait()
-            print('cd %e'%pointCloud.distChamfer(normalizePt, DQpt))
+            pass
+        pass
+    pass
