@@ -119,7 +119,6 @@ def init_main_args(parents=[]):
         '--samples', '-X',
         metavar='WILDCARD',
         required=True,
-        nargs='+',
         help='A wildcard to the point cloud files'
         )
      

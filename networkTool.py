@@ -10,7 +10,8 @@ import os,random
 import numpy as np
 # torch.set_default_tensor_type(torch.DoubleTensor)
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+assert torch.cuda.is_available()
+device = torch.device("cuda")
 
 # Network parameters
 bptt = 1024 # Context window length

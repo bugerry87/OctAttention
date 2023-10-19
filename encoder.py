@@ -6,11 +6,13 @@ All rights reserved.
 '''
 from argparse import ArgumentParser
 from Preparedata.data import dataPrepare
-from encoderTool import main
-from networkTool import reload, device
+from encoderTool import compress
+from dataset import default_loader as matloader
+from networkTool import reload, device, levelNumK
 from octAttention import model
 import glob, datetime, os
 import pt as pointCloud
+import numpy as np
 
 ############## warning ###############
 ## decoder.py and test.py rely on this model here
@@ -40,7 +42,6 @@ def init_main_args(parents=[]):
         '--samples', '-X',
         metavar='WILDCARD',
         required=True,
-        nargs='+',
         help='A wildcard to the point cloud files'
         )
      
@@ -48,7 +49,14 @@ def init_main_args(parents=[]):
         '--features', '-F',
         metavar='PATH',
         required=True,
-        help='path to pre-processed features'
+        help='Path to pre-processed features'
+        )
+    
+    main_args.add_argument(
+        '--output', '-Y',
+        metavar='PATH',
+        required=True,
+        help='Path for compressed output'
         )
     
     main_args.add_argument(
@@ -67,6 +75,7 @@ def init_main_args(parents=[]):
     return main_args
 
 if __name__=="__main__":
+    np.set_printoptions(formatter={'float': '{: 0.2f}'.format})
     args = init_main_args().parse_known_args()
     model = model.to(device)
     saveDic = reload(
@@ -82,17 +91,55 @@ if __name__=="__main__":
 
     for oriFile in glob.glob(args.samples):
         print(oriFile)
-        ptName = os.path.splitext(os.path.basename(oriFile))[0] 
         for qlevel in [12]:
-            matFile, DQpt, normalizePt = dataPrepare(
-                oriFile,
-                saveMatDir=args.featues,
-                offset='min',
-                qs=2/(2**qlevel-1),
-                rotation=False,
-                normalize=True
+            if oriFile.endswith('.mat'):
+                matFile = oriFile
+                DQpt = None
+            else:
+                matFile, DQpt, normalizePt = dataPrepare(
+                    oriFile,
+                    saveMatDir=args.featues,
+                    offset='min',
+                    qs=2/(2**qlevel-1),
+                    rotation=False,
+                    normalize=True
+                )
+                pass
+
+            #main(matFile, model, actualcode=True, printl=print) # actualcode=False: bin file will not be generated
+            cell, mat = matloader(matFile)
+            oct_data_seq = np.transpose(mat[cell[0,0]]).astype(int)[:,-levelNumK:,0:6] 
+            p = np.transpose(mat[cell[1,0]]['Location'])
+            ptNum = p.shape[0]
+            ptName = os.path.splitext(os.path.basename(matFile))[0]
+            output = os.path.join(args.output, ptName + ".bin")
+            binsz, oct_len, elapsed, binszList, octNumList = compress(
+                oct_data_seq,
+                output,
+                model,
+                True,
+                print,
+                False
             )
-            main(matFile, model, actualcode=True, printl=print) # actualcode=False: bin file will not be generated
+
+            if DQpt is None:
+                info = mat[cell[2,0]]
+                offset = info['offset']
+                qs = info['qs']
+                DQpt = p * qs + offset
+
+            print("ptName: ", ptName)
+            print("time(s):", elapsed)
+            print("ori file", matFile)
+            print("ptNum:", ptNum)
+            print("binsize(b):", binsz)
+            print("bpip:", binsz/ptNum)
+            print("pre sz(b) from Q8:",(binszList))
+            print("pre bit per oct from Q8:", (binszList / octNumList))
+            print('octNum:', octNumList)
+            print("bit per oct:", binsz/oct_len)
+            print("oct len:", oct_len)
+
             print('_'*50,'pc_error','_'*50)
             pointCloud.pcerror(
                 normalizePt,

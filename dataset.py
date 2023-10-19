@@ -21,13 +21,12 @@ def default_loader(path):
     mat = h5py.File(path)
     # data = scio.loadmat(path)
     cell = mat['patchFile']
-    return cell,mat
+    return cell, mat
 
 class DataFolder(data.Dataset):
     """ ImageFolder can be used to load images where there are no labels."""
 
-    def __init__(self, root, TreePoint,dataLenPerFile, transform=None ,loader=default_loader): 
-         
+    def __init__(self, root, TreePoint, dataLenPerFile, transform=None, loader=default_loader): 
         # dataLenPerFile is the number of all octnodes in one 'mat' file on average
         self.root = root
         self.dataNames = sorted(filter(is_image_file, glob.glob(root)))
@@ -46,9 +45,9 @@ class DataFolder(data.Dataset):
     def calcdataLenPerFile(self):
         dataLenPerFile = 0
         for filename in self.dataNames:
-            cell,mat = self.loader(filename)
+            cell, mat = self.loader(filename)
             for i in range(cell.shape[1]):
-                dataLenPerFile+= mat[cell[0,i]].shape[2]
+                dataLenPerFile += mat[cell[0,i]].shape[2]
         dataLenPerFile = dataLenPerFile/self.fileLen
         print('**'*40)
         print('dataLenPerFile:',dataLenPerFile,'you just use this function for the first time')
@@ -64,7 +63,7 @@ class DataFolder(data.Dataset):
             else:
                 a = []
                 
-            cell,mat = self.loader(filename)
+            cell, mat = self.loader(filename)
             for i in range(cell.shape[1]):
                 data = np.transpose(mat[cell[0,i]]) #shape[ptNum,Kparent, Seq[1],Level[1],Octant[1],Pos[3] ] e.g 123456*7*6
                 data[:,:,0] = data[:,:,0] - 1

@@ -54,7 +54,14 @@ return {float;total foward time of the model} elapsed
 return {float list;estimated bin size (in bit) of depth 8~maxlevel data} binszList
 return {int list;oct length of 8~maxlevel octree} octNumList
 '''
-def compress(oct_data_seq,outputfile,model,actualcode = True,print=print,showRelut=False):
+def compress(
+    oct_data_seq,
+    outputfile,
+    model,
+    actualcode = True,
+    print=print,
+    showRelut=False
+):
     model.eval()
     levelID = oct_data_seq[:,-1,1].copy()
     oct_data_seq = oct_data_seq.copy()
@@ -148,11 +155,15 @@ def compress(oct_data_seq,outputfile,model,actualcode = True,print=print,showRel
             return binsz,oct_len,elapsed,np.array(binszList),np.array(octNumList)  
         return binsz,oct_len,elapsed ,np.array(binszList[7:]),np.array(octNumList[7:])  
  # %%
-def main(fileName,model,actualcode = True,showRelut=True,printl = print):
-    
+def main(
+    fileName,
+    model,
+    actualcode = True,
+    showRelut = True,
+    printl = print
+):
     matDataPath = fileName
-    octDataPath = matDataPath
-    cell,mat = matloader(matDataPath)
+    cell, mat = matloader(matDataPath)
     FeatDim = levelNumK                          
     oct_data_seq = np.transpose(mat[cell[0,0]]).astype(int)[:,-FeatDim:,0:6] 
 
@@ -160,14 +171,22 @@ def main(fileName,model,actualcode = True,showRelut=True,printl = print):
     ptNum = p.shape[0]
     ptName = os.path.basename(matDataPath)
     outputfile = expName+"/data/"+ptName[:-4]+".bin"
-    binsz,oct_len,elapsed,binszList,octNumList = compress(oct_data_seq,outputfile,model,actualcode,printl,showRelut)
+    binsz, oct_len, elapsed, binszList, octNumList = compress(
+        oct_data_seq,
+        outputfile,
+        model,
+        actualcode,
+        printl,
+        showRelut
+    )
+
     if showRelut:
-        printl("ptName: ",ptName)
-        printl("time(s):",elapsed)
-        printl("ori file",octDataPath)
-        printl("ptNum:",ptNum)
-        printl("binsize(b):",binsz)
-        printl("bpip:",binsz/ptNum)
+        printl("ptName: ", ptName)
+        printl("time(s):", elapsed)
+        printl("ori file", matDataPath)
+        printl("ptNum:", ptNum)
+        printl("binsize(b):", binsz)
+        printl("bpip:", binsz/ptNum)
 
         np.set_printoptions(formatter={'float': '{: 0.2f}'.format})
         printl("pre sz(b) from Q8:",(binszList))
@@ -176,4 +195,4 @@ def main(fileName,model,actualcode = True,showRelut=True,printl = print):
         printl("bit per oct:",binsz/oct_len)
         printl("oct len",oct_len)
  
-    return binsz/oct_len
+    return binsz / oct_len
