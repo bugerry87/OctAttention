@@ -9,9 +9,9 @@ from plyfile import PlyData
 import subprocess
 from scipy.spatial import cKDTree
 
-ply2851Path = "file/2851.ply"
+#ply2851Path = "file/2851.ply"
 PCERRORPATH = "./file/pc_error"
-TEMPPATH = "./temp/data/"
+TEMPPATH = "/tmp/data/"
 
 def pcerror(pcRefer,pc,pcReferNorm,pcerror_cfg_params, pcerror_result,pcerror_path=PCERRORPATH):
   '''

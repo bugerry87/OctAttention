@@ -48,5 +48,6 @@ def dataPrepare(fileName,saveMatDir='Data',qs=1,ptNamePrefix='',offset='min',qle
     Info = {'qs':qs,'offset':offset,'Lmax':QLevel,'name':ptName,'levelSID':np.array([Octreelevel.node[-1].nodeid for Octreelevel in Octree])}
     patchFile = {'patchFile':(np.concatenate((np.expand_dims(DataSturct['Seq'],2),DataSturct['Level'],DataSturct['Pos']),2), ptcloud, Info)}
     hdf5storage.savemat(os.path.join(saveMatDir,ptName+'.mat'), patchFile, format='7.3', oned_as='row', store_python_metadata=True)
-    DQpt = (pt*qs+offset) 
+    DQpt = (pt*qs+offset)
+    del Octree
     return os.path.join(saveMatDir,ptName+'.mat'),DQpt,refPt

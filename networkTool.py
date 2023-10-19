@@ -36,10 +36,10 @@ torch.backends.cudnn.benchmark=False
 torch.backends.cudnn.deterministic=True
 os.environ["H5PY_DEFAULT_READONLY"] = "1"
 # Tool functions
-def save(index, saveDict,modelDir='checkpoint',pthType='epoch'):
-    if os.path.dirname(modelDir)!='' and not os.path.exists(os.path.dirname(modelDir)):
+def save(saveDict, modelDir='checkpoint'):
+    if os.path.dirname(modelDir) != '' and not os.path.exists(os.path.dirname(modelDir)):
         os.makedirs(os.path.dirname(modelDir))
-    torch.save(saveDict, modelDir+'/encoder_{}_{:08d}.pth'.format(pthType, index))
+    torch.save(saveDict, '{}/encoder_best.pth'.format(modelDir))
         
 def reload(checkpoint,modelDir='checkpoint',pthType='epoch',print=print,multiGPU=False):
     try:

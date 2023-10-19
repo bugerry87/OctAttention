@@ -29,18 +29,13 @@ class DataFolder(data.Dataset):
     def __init__(self, root, TreePoint,dataLenPerFile, transform=None ,loader=default_loader): 
          
         # dataLenPerFile is the number of all octnodes in one 'mat' file on average
-        
-        dataNames = []
-        for filename in sorted(glob.glob(root)):
-            if is_image_file(filename):
-                dataNames.append('{}'.format(filename))
         self.root = root
-        self.dataNames =sorted(dataNames)
+        self.dataNames = sorted(filter(is_image_file, glob.glob(root)))
         self.transform = transform
         self.loader = loader
         self.index = 0
         self.datalen = 0
-        self.dataBuffer = []
+        self.dataBuffer = None
         self.fileIndx = 0
         self.TreePoint = TreePoint
         self.fileLen = len(self.dataNames)
@@ -67,7 +62,7 @@ class DataFolder(data.Dataset):
             if self.dataBuffer:
                 a = [self.dataBuffer[0][self.index:].copy()]
             else:
-                a=[]
+                a = []
                 
             cell,mat = self.loader(filename)
             for i in range(cell.shape[1]):
@@ -75,22 +70,19 @@ class DataFolder(data.Dataset):
                 data[:,:,0] = data[:,:,0] - 1
                 a.append(data[:,-levelNumK:,:])# only take levelNumK level feats
                 
-            self.dataBuffer = []
-            self.dataBuffer.append(np.vstack(tuple(a)))
+            self.dataBuffer = np.vstack(tuple(a))
 
-            self.datalen = self.dataBuffer[0].shape[0]
+            self.datalen = self.dataBuffer.shape[0]
             self.fileIndx+=1  # shuffle step = 1, will load continuous mat
             self.index = 0
             if(self.fileIndx>=self.fileLen):
                 self.fileIndx=index%self.fileLen
         # try read
-        img = []
-        img.append(self.dataBuffer[0][self.index:self.index+self.TreePoint])
-
-        self.index+=self.TreePoint
+        img = self.dataBuffer[self.index:self.index+self.TreePoint]
+        self.index += self.TreePoint
 
         if self.transform is not None:
-            img = self.transform(img)
+            img = self.transform([img])[0]
         return img
 
     def __len__(self):

@@ -146,11 +146,9 @@ if __name__=="__main__":
     # loger
     if not os.path.exists(checkpointPath):
         os.makedirs(checkpointPath)
-    printl = CPrintl(expName+'/loss.log')
     writer = SummaryWriter('./log/'+expName)
-    printl(datetime.datetime.now().strftime('\r\n%Y-%m-%d:%H:%M:%S'))
-    # model_structure(model,printl)
-    printl(expComment+' Pid: '+str(os.getpid()))
+    print(datetime.datetime.now().strftime('\r\n%Y-%m-%d:%H:%M:%S'))
+    print(expComment+' Pid: '+str(os.getpid()))
     log_interval = int(batch_size*TreePoint/batchSize/bptt)
     
     # learning
@@ -171,16 +169,15 @@ if __name__=="__main__":
         model.load_state_dict(saveDic['encoder'])
         
     def train(epoch):
-        global idloss,best_val_loss
+        global idloss, best_val_loss
         model.train() # Turn on the train mode
         total_loss = 0.
         start_time = time.time()
-        total_loss_list = torch.zeros((1,7))
             
         for Batch, d in enumerate(train_loader): # there are two 'BATCH', 'Batch' includes batch_size*TreePoint/batchSize/bptt 'batch'es.
             batch = 0
  
-            train_data = d[0].reshape((batchSize,-1,4,6)).to(device).permute(1,0,2,3)   #shape [TreePoint*batch_size(data)/batch_size,batch_size,7,6]
+            train_data = d.reshape((batchSize,-1,4,6)).to(device).permute(1,0,2,3)   #shape [TreePoint*batch_size(data)/batch_size,batch_size,7,6]
             src_mask = model.generate_square_subsequent_mask(bptt).to(device)
             for index, i in enumerate(range(0, train_data.size(0) - 1, bptt)):
                 data, targets,dataFeat = get_batch(train_data, i)#data [35,20]
@@ -194,33 +191,49 @@ if __name__=="__main__":
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
                 optimizer.step()
                 total_loss += loss.item()
-                batch = batch+1
+                batch += 1
 
                 if batch % log_interval == 0:
                     cur_loss = total_loss / log_interval
                     elapsed = time.time() - start_time
-                
-                    total_loss_list = " - "
-                    printl('| epoch {:3d} | Batch {:3d} | {:4d}/{:4d} batches | '
-                        'lr {:02.2f} | ms/batch {:5.2f} | '
-                        'loss {:5.2f} | losslist  {} | ppl {:8.2f}'.format(
-                            epoch, Batch, batch, len(train_data) // bptt, scheduler.get_last_lr()[0],
+                    print(
+                        '| epoch {:3d} | Batch {:3d} | {:4d}/{:4d} batches | '
+                        'lr {:02.5f} | ms/batch {:5.2f} | '
+                        'loss {:5.2f} | ppl {:8.2f}'.format(
+                            epoch,
+                            Batch,
+                            batch,
+                            len(train_data) // bptt, scheduler.get_last_lr()[0],
                             elapsed * 1000 / log_interval,
-                            cur_loss,total_loss_list, math.exp(cur_loss)))
+                            cur_loss,
+                            math.exp(cur_loss)
+                        )
+                    )
                     total_loss = 0
-    
                     start_time = time.time()
+                    idloss += 1
 
-                    writer.add_scalar('train_loss', cur_loss,idloss)
-                    idloss+=1
-
-            if Batch%10==0:
-                save(epoch*100000+Batch,saveDict={'encoder':model.state_dict(),'idloss':idloss,'epoch':epoch,'best_val_loss':best_val_loss},modelDir=checkpointPath)
+            if Batch % 100 == 0:
+                writer.add_scalar(
+                    'train_loss',
+                    cur_loss,
+                    idloss,
+                )
+                if cur_loss < best_val_loss:
+                    save(
+                        saveDict={
+                            'encoder': model.state_dict(),
+                            'idloss': idloss,
+                            'epoch': epoch,
+                            'best_val_loss': best_val_loss
+                        },
+                        modelDir=checkpointPath
+                    )
     
     # train
     for epoch in range(1, epochs + 1):
         epoch_start_time = time.time()
         train(epoch)
-        printl('-' * 89)
+        print('-' * 89)
         scheduler.step()
-        printl('-' * 89)
+        print('-' * 89)
