@@ -38,7 +38,7 @@ def dataPrepare(
         refPt = refPt[:,[0,2,1]]
         refPt[:,2] = - refPt[:,2]
 
-    if offset is 'min':
+    if offset == 'min':
         offset = np.min(refPt,0)
 
     points = refPt - offset

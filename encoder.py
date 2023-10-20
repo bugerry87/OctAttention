@@ -11,7 +11,6 @@ from dataset import default_loader as matloader
 from networkTool import reload, device, levelNumK
 from octAttention import model
 import glob, datetime, os
-import pt as pointCloud
 import numpy as np
 
 ############## warning ###############
