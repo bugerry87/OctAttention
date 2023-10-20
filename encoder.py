@@ -47,7 +47,6 @@ def init_main_args(parents=[]):
     main_args.add_argument(
         '--features', '-F',
         metavar='PATH',
-        required=True,
         help='Path to pre-processed features'
         )
     
@@ -75,7 +74,7 @@ def init_main_args(parents=[]):
 
 if __name__=="__main__":
     np.set_printoptions(formatter={'float': '{: 0.2f}'.format})
-    args = init_main_args().parse_known_args()
+    args = init_main_args().parse_known_args()[0]
     model = model.to(device)
     saveDic = reload(
         None,
